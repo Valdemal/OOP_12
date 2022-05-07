@@ -64,9 +64,7 @@ class Map:
         if self.__route is None:
             matrix_copy = copy.deepcopy(self.__map_matrix)
 
-            matrix_copy[self.route_end.x][self.route_end.y] = 0
-
-            self.__route = Map.__get_shortest_path_between_points(
+            self.__route = self.__get_shortest_path_between_points(
                 matrix_copy,
                 self.route_start,
                 self.route_end,
@@ -74,37 +72,40 @@ class Map:
 
         return self.__route
 
-    @staticmethod
-    def __get_shortest_path_between_points(map_matrix: List[list],
+    def __get_directions(self, map_matrix: List[list], start: Point, end: Point) -> List[Point]:
+        possible_directions = [Point(start.x + 1, start.y),
+                               Point(start.x - 1, start.y),
+                               Point(start.x, start.y + 1),
+                               Point(start.x, start.y - 1)]
+        res = []
+
+        for point in possible_directions:
+            if 0 <= point.x < self.m and 0 <= point.y < self.n:
+                if map_matrix[point.x][point.y] == 1:
+                    if point == end:
+                        return [point]
+                else:
+                    res.append(point)
+
+        return sorted(res, key=lambda p: end.distance(p))
+
+    def __get_shortest_path_between_points(self, map_matrix: List[list],
                                            start: Point, end: Point,
-                                           route: List[Point]):
-
-        # if start == end:
-        #     return route
-
-        x, y = start.to_tuple()
+                                           route: List[Point]) -> List[Point] or None:
 
         if start == end:
             return route
 
-        def try_next(x: int, y: int, m: int, n: int):
-            return [Point(a, b) for a, b in [(x - 1, y), (x, y - 1), (x + 1, y), (x, y + 1)] if
-                    0 <= a < m and 0 <= b < n]
-
-        map_matrix[x][y] = 1
+        # Блокируем стартовое поле, чтобы поиск пути не шел в его направлении
+        map_matrix[start.x][start.y] = 1
 
         shortest_route = None
-
-        directions = sorted(try_next(x, y, len(map_matrix), len(map_matrix[0])), key=
-            lambda point: start.distance(point))
+        directions = self.__get_directions(map_matrix, start, end)
 
         for point in directions:
-            if not map_matrix[point.x][point.y]:
-                last_route = Map.__get_shortest_path_between_points(map_matrix, point, end, route + [point])
+            last_route = self.__get_shortest_path_between_points(map_matrix, point, end, route + [point])
 
-                if not shortest_route or (last_route and len(last_route) < len(shortest_route)):
-                    shortest_route = last_route
-
-        map_matrix[start.x][start.y] = 0
+            if not shortest_route or (last_route and len(last_route) < len(shortest_route)):
+                shortest_route = last_route
 
         return shortest_route

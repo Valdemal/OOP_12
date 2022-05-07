@@ -42,7 +42,8 @@ if __name__ == "__main__":
 
     menu.add_button(create_load_button_for_field_menu(field))
     menu.add_button(
-        Button(size=MENU_BUTTON_SIZE, background_color=MENU_BUTTON_COLOR, text="Очистить", action=field.clean))
+        Button(size=MENU_BUTTON_SIZE, background_color=MENU_BUTTON_COLOR, text="Удалить путь",
+               action=field.delete_route))
     game.attach_display_elements([field, menu])
 
     while game.running():

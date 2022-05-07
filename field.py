@@ -24,7 +24,7 @@ class Field(DisplayElement):
         self.__cell_width = self.width / self.__map.n if self.__map.n else 0
         self.__cell_height = self.height / self.__map.m if self.__map.m else 0
 
-    def clean(self):
+    def delete_route(self):
         print("Очищение")
         self.__map.reset_route()
         self.enable()
